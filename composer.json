@@ -1,0 +1,21 @@
+{
+    "name": "cupoftea/asset-manager",
+    "description": "Asset Manager for Laravel 5",
+    "require": {
+        "cupoftea/package": "~1.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CupOfTea696",
+            "email": "cupoftea696@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "CupOfTea\\AssetManager": "src/"
+        },
+        "files": ["src/helpers.php"]
+    },
+    "minimum-stability": "stable"
+}
