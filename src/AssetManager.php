@@ -27,7 +27,7 @@ class AssetManager implements ProviderContract
     protected function files($asset, $type = false)
     {
         $asset_path = trim(config('assets.path', 'assets'), '/');
-        $asset = $type ? config('assets.' . $type, $type) . '/' . trim($asset, '/') . '.' . $type;
+        $asset = $type ? config('assets.' . $type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
         $asset = $asset_path . '/' . $asset;
         
         return [

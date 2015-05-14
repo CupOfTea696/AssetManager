@@ -4,7 +4,7 @@ if (!function_exists('asset_files')) {
     function asset_files($asset, $type = false)
     {
         $asset_path = trim(config('assets.path', 'assets'), '/');
-        $asset = $type ? config('assets.' . $type, $type) . '/' . trim($asset, '/') . '.' . $type;
+        $asset = $type ? config('assets.' . $type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
         $asset = $asset_path . '/' . $asset;
         
         return [
