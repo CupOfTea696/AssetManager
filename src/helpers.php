@@ -56,13 +56,29 @@ if (!function_exists('get_asset')) {
 if (!function_exists('css')) {
     function css($asset)
     {
-        return get_asset($asset, 'css');
+        $asset = get_asset($asset, 'css');
+        
+        if (! $asset || starts_with($asset, '<--'))
+            return $asset;
+        
+        if (config('assets.html', true))
+            return '<link rel="stylesheet" href="' . $asset . '">';
+        
+        return $asset;
     }
 }
 
 if (!function_exists('js')) {
     function js($asset)
     {
-        return get_asset($asset, 'js');
+        $asset = get_asset($asset, 'js');
+        
+        if (! $asset || starts_with($asset, '<--'))
+            return $asset;
+        
+        if (config('assets.html', true))
+            return '<script src="' . $asset . '"></script>';
+        
+        return $asset;
     }
 }

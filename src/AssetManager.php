@@ -82,7 +82,15 @@ class AssetManager implements ProviderContract
 	 */
     public function css($asset)
     {
-        return $this->get($asset, 'css');
+        $asset = $this->get($asset, 'css');
+        
+        if (! $asset || starts_with($asset, '<--'))
+            return $asset;
+        
+        if (config('assets.html', true))
+            return '<link rel="stylesheet" href="' . $asset . '">';
+        
+        return $asset;
     }
     
     /**
@@ -90,6 +98,14 @@ class AssetManager implements ProviderContract
 	 */
     public function js($asset)
     {
-        return $this->get($asset, 'js');
+        $asset = $this->get($asset, 'js');
+        
+        if (! $asset || starts_with($asset, '<--'))
+            return $asset;
+        
+        if (config('assets.html', true))
+            return '<script src="' . $asset . '"></script>';
+        
+        return $asset;
     }
 }
