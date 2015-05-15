@@ -15,9 +15,9 @@ if (!function_exists('asset_files')) {
 }
 
 if (!function_exists('asset_exists')) {
-    function asset_exists($asset)
+    function asset_exists($asset, $type = false)
     {
-        $asset_files = asset_files($asset);
+        $asset_files = asset_files($asset, $type);
         $production = app()->environment('production');
         
         if (file_exists(public_path($asset_files[$production ? 'min' : 'full'])))
@@ -34,7 +34,7 @@ if (!function_exists('get_asset')) {
     function get_asset($asset, $type = false)
     {
         $asset_files = asset_files($asset, $type);
-        $asset = asset_exists($asset);
+        $asset = asset_exists($asset, $type);
         
         if (!$asset) {
             $msg = 'Asset ' . $asset_files['full'] . ' and ' . $asset_files['min'] . ' could not be found.';
@@ -56,7 +56,7 @@ if (!function_exists('get_asset')) {
 if (!function_exists('css')) {
     function css($asset, $html = null)
     {
-        $html = $html === null ? $html : config('assets.html', true);
+        $html = $html !== null ? $html : config('assets.html', true);
         $asset = get_asset($asset, 'css');
         
         if (! $asset || starts_with($asset, '<!--'))
@@ -72,7 +72,7 @@ if (!function_exists('css')) {
 if (!function_exists('js')) {
     function js($asset, $html = null)
     {
-        $html = $html === null ? $html : config('assets.html', true);
+        $html = $html !== null ? $html : config('assets.html', true);
         $asset = get_asset($asset, 'js');
         
         if (! $asset || starts_with($asset, '<!--'))

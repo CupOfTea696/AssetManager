@@ -39,9 +39,9 @@ class AssetManager implements ProviderContract
     /**
 	 * {@inheritdoc}
 	 */
-    public function exists($asset)
+    public function exists($asset, $type = false)
     {
-        $asset_files = $this->files($asset);
+        $asset_files = $this->files($asset, $type);
         $production = app()->environment('production');
         
         if (file_exists(public_path($asset_files[$production ? 'min' : 'full'])))
@@ -59,7 +59,7 @@ class AssetManager implements ProviderContract
     public function get($asset, $type = false)
     {
         $asset_files = $this->files($asset, $type);
-        $asset = $this->exists($asset);
+        $asset = $this->exists($asset, $type);
         
         if (!$asset) {
             $msg = 'Asset ' . $asset_files['full'] . ' and ' . $asset_files['min'] . ' could not be found.';
@@ -80,14 +80,15 @@ class AssetManager implements ProviderContract
     /**
 	 * {@inheritdoc}
 	 */
-    public function css($asset)
+    public function css($asset, $html = null)
     {
+        $html = $html !== null ? $html : config('assets.html', true);
         $asset = $this->get($asset, 'css');
         
         if (! $asset || starts_with($asset, '<--'))
             return $asset;
         
-        if (config('assets.html', true))
+        if ($html)
             return '<link rel="stylesheet" href="' . $asset . '">';
         
         return $asset;
@@ -96,14 +97,15 @@ class AssetManager implements ProviderContract
     /**
 	 * {@inheritdoc}
 	 */
-    public function js($asset)
+    public function js($asset, $html = null)
     {
+        $html = $html !== null ? $html : config('assets.html', true);
         $asset = $this->get($asset, 'js');
         
         if (! $asset || starts_with($asset, '<--'))
             return $asset;
         
-        if (config('assets.html', true))
+        if ($html)
             return '<script src="' . $asset . '"></script>';
         
         return $asset;
