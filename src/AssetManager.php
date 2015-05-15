@@ -15,7 +15,7 @@ class AssetManager implements ProviderContract
      * @const string VERSION
      */
     const PACKAGE = 'CupOfTea/AssetManager';
-    const VERSION = '1.1.1';
+    const VERSION = '1.2.0';
     
     /**
      * Get an array with uncompressed and minified files for an asset.
