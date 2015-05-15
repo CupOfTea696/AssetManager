@@ -9,7 +9,7 @@ if (!function_exists('asset_files')) {
         
         return [
             'full' => $asset,
-            'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset_full),
+            'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset),
         ];
     }
 }
@@ -58,7 +58,7 @@ if (!function_exists('css')) {
     {
         $asset = get_asset($asset, 'css');
         
-        if (! $asset || starts_with($asset, '<--'))
+        if (! $asset || starts_with($asset, '<!--'))
             return $asset;
         
         if (config('assets.html', true))
@@ -73,7 +73,7 @@ if (!function_exists('js')) {
     {
         $asset = get_asset($asset, 'js');
         
-        if (! $asset || starts_with($asset, '<--'))
+        if (! $asset || starts_with($asset, '<!--'))
             return $asset;
         
         if (config('assets.html', true))

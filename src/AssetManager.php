@@ -32,7 +32,7 @@ class AssetManager implements ProviderContract
         
         return [
             'full' => $asset,
-            'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset_full),
+            'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset),
         ];
     }
     
