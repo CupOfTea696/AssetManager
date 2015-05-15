@@ -36,4 +36,12 @@ interface Provider
 	 */
 	public function js($asset);
     
+    /**
+	 * Return a CDN asset with local fallback
+	 *
+     * @param string $cdn
+     * @param string|Closure $fallback
+	 * @return mixed
+	 */
+    public function cdn($cdn, $fallback);
 }

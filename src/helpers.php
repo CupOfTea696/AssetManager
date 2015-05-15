@@ -54,14 +54,15 @@ if (!function_exists('get_asset')) {
 }
 
 if (!function_exists('css')) {
-    function css($asset)
+    function css($asset, $html = null)
     {
+        $html = $html === null ? $html : config('assets.html', true);
         $asset = get_asset($asset, 'css');
         
         if (! $asset || starts_with($asset, '<!--'))
             return $asset;
         
-        if (config('assets.html', true))
+        if ($html)
             return '<link rel="stylesheet" href="' . $asset . '">';
         
         return $asset;
@@ -69,16 +70,45 @@ if (!function_exists('css')) {
 }
 
 if (!function_exists('js')) {
-    function js($asset)
+    function js($asset, $html = null)
     {
+        $html = $html === null ? $html : config('assets.html', true);
         $asset = get_asset($asset, 'js');
         
         if (! $asset || starts_with($asset, '<!--'))
             return $asset;
         
-        if (config('assets.html', true))
+        if ($html)
             return '<script src="' . $asset . '"></script>';
         
         return $asset;
+    }
+}
+
+if (!function_exists('cdn')) {
+    function cdn($cdn, $fallback)
+    {
+        if (preg_match('/^\/\//')) {
+            $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
+            $headers = get_headers($protocol . ':' . $cdn);
+        } else {
+            $headers = get_headers($cdn);
+        }
+        
+        $cdn_available = false;
+        foreach ($headers as $header) {
+            if (str_contains($header, '200 OK')) {
+                $cdn_available = true;
+                break;
+            }
+        }
+        
+        if ($cdn_available)
+            return $cdn;
+        
+        if (is_object($fallback) && ($fallback instanceof Closure))
+            return $fallback();
+        
+        return $fallback;
     }
 }

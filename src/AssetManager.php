@@ -108,4 +108,33 @@ class AssetManager implements ProviderContract
         
         return $asset;
     }
+    
+    /**
+	 * {@inheritdoc}
+	 */
+    function cdn($cdn, $fallback)
+    {
+        if (preg_match('/^\/\//')) {
+            $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
+            $headers = get_headers($protocol . ':' . $cdn);
+        } else {
+            $headers = get_headers($cdn);
+        }
+        
+        $cdn_available = false;
+        foreach ($headers as $header) {
+            if (str_contains($header, '200 OK')) {
+                $cdn_available = true;
+                break;
+            }
+        }
+        
+        if ($cdn_available)
+            return $cdn;
+        
+        if (is_object($fallback) && ($fallback instanceof Closure))
+            return $fallback();
+        
+        return $fallback;
+    }
 }
