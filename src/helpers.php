@@ -1,5 +1,37 @@
 <?php
 
+/**
+ * Fallback Laravel helper functions.
+ */
+
+if (!function_exists('config')) {
+    function config($key, $default = null)
+    {
+        static $cfg_file = include '../config/assets.php';
+        
+        $key = str_replace('assets.', '', $key);
+        
+        return isset($cfg_file[$key]) ? $cfg_file[$key] : $default;
+    }
+}
+
+if (!function_exists('value')) {
+    /**
+     * Return the default value of the given value.
+     *
+     * @param  mixed  $value
+     * @return mixed
+     */
+    function value($value)
+    {
+        return $value instanceof Closure ? $value() : $value;
+    }
+}
+
+/**
+ * Asset Manager functions.
+ */
+
 if (!function_exists('asset_files')) {
     function asset_files($asset, $type = false)
     {
@@ -18,13 +50,15 @@ if (!function_exists('asset_exists')) {
     function asset_exists($asset, $type = false)
     {
         $asset_files = asset_files($asset, $type);
-        $production = app()->environment('production');
+        $production = function_exists('app') ? app()->environment('production') : true;
         
-        if (file_exists(public_path($asset_files[$production ? 'min' : 'full'])))
+        if (function_exists('public_path') && file_exists(public_path($asset_files[$production ? 'min' : 'full']))) {
             return $asset_files[$production ? 'min' : 'full'] . '?v=' . md5_file(public_path($asset_files[$production ? 'min' : 'full']));
+        }
         
-        if (file_exists($asset_files[$production ? 'full' : 'min']))
-            return $asset_files[$production ? 'full' : 'min'] . '?v=' . md5_file(public_path($asset_files[$production ? 'full' : 'min']));
+        if (file_exists($asset_files[$production ? 'full' : 'min'])) {
+            return $asset_files[$production ? 'full' : 'min'] . '?v=' . md5_file($asset_files[$production ? 'full' : 'min']);
+        }
         
         return false;
     }
@@ -59,11 +93,13 @@ if (!function_exists('css')) {
         $html = $html !== null ? $html : config('assets.html', true);
         $asset = get_asset($asset, 'css');
         
-        if (! $asset || starts_with($asset, '<!--'))
+        if (! $asset || starts_with($asset, '<!--')) {
             return $asset;
+        }
         
-        if ($html)
+        if ($html) {
             return '<link rel="stylesheet" href="' . $asset . '">';
+        }
         
         return $asset;
     }
@@ -75,11 +111,13 @@ if (!function_exists('js')) {
         $html = $html !== null ? $html : config('assets.html', true);
         $asset = get_asset($asset, 'js');
         
-        if (! $asset || starts_with($asset, '<!--'))
+        if (! $asset || starts_with($asset, '<!--')) {
             return $asset;
+        }
         
-        if ($html)
+        if ($html) {
             return '<script src="' . $asset . '"></script>';
+        }
         
         return $asset;
     }
@@ -103,12 +141,10 @@ if (!function_exists('cdn')) {
             }
         }
         
-        if ($cdn_available)
+        if ($cdn_available){
             return $cdn;
+        }
         
-        if (is_object($fallback) && ($fallback instanceof Closure))
-            return $fallback();
-        
-        return $fallback;
+        return value($fallback);
     }
 }
