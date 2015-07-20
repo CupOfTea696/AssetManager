@@ -15,7 +15,7 @@ class AssetManager implements ProviderContract
      * @const string VERSION
      */
     const PACKAGE = 'CupOfTea/AssetManager';
-    const VERSION = '1.2.2';
+    const VERSION = '1.2.3';
     
     /**
 	 * {@inheritdoc}
