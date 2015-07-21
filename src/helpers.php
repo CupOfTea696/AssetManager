@@ -3,29 +3,35 @@
 /**
  * Fallback Laravel helper functions.
  */
-
-if (!function_exists('config')) {
-    function config($key, $default = null)
-    {
-        static $cfg_file = include '../config/assets.php';
-        
-        $key = str_replace('assets.', '', $key);
-        
-        return isset($cfg_file[$key]) ? $cfg_file[$key] : $default;
+$cupoftea_asset_manager_func_config = function($key, $default = null)
+{
+    if (function_exists('config')) {
+        return call_user_func_array('config', [$key, $default]);
     }
+    
+    static $cfg_file = null;
+    if ($cfg_file === null) {
+        $cfg_file = include '../config/assets.php';
+    }
+    
+    $key = str_replace('assets.', '', $key);
+    
+    return isset($cfg_file[$key]) ? $cfg_file[$key] : $default;
 }
 
-if (!function_exists('value')) {
-    /**
-     * Return the default value of the given value.
-     *
-     * @param  mixed  $value
-     * @return mixed
-     */
-    function value($value)
-    {
-        return $value instanceof Closure ? $value() : $value;
+/**
+ * Return the default value of the given value.
+ *
+ * @param  mixed  $value
+ * @return mixed
+ */
+$cupoftea_asset_manager_func_value = function($value)
+{
+    if (function_exists('value')) {
+        return call_user_func_array('value', [$value]);
     }
+    
+    return $value instanceof Closure ? $value() : $value;
 }
 
 /**
@@ -35,8 +41,10 @@ if (!function_exists('value')) {
 if (!function_exists('asset_files')) {
     function asset_files($asset, $type = false)
     {
-        $asset_path = trim(config('assets.path', 'assets'), '/');
-        $asset = $type ? config('assets.' . $type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
+        $config = $cupoftea_asset_manager_func_config;
+        
+        $asset_path = trim($config('assets.path', 'assets'), '/');
+        $asset = $type ? $config('assets.' . $type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
         $asset = $asset_path . '/' . $asset;
         
         return [
@@ -67,30 +75,32 @@ if (!function_exists('asset_exists')) {
 if (!function_exists('get_asset')) {
     function get_asset($asset, $type = false)
     {
+        $config = $cupoftea_asset_manager_func_config;
         $asset_files = asset_files($asset, $type);
         $asset = asset_exists($asset, $type);
         
         if (!$asset) {
             $msg = 'Asset ' . $asset_files['full'] . ' and ' . $asset_files['min'] . ' could not be found.';
             
-            if (config('assets.missing') == 'warn') {
+            if ($config('assets.missing') == 'warn') {
                 trigger_error($msg, E_USER_WARNING);
                 return false;
-            } elseif (config('assets.missing', 'comment') == 'comment') {
+            } elseif ($config('assets.missing', 'comment') == 'comment') {
                 return '<!-- ' . $msg . ' -->';
             } else {
                 return false;
             }
         }
         
-        return config('assets.relative', true) ? $asset : asset($asset);
+        return $config('assets.relative', true) ? $asset : asset($asset);
     }
 }
 
 if (!function_exists('css')) {
     function css($asset, $html = null)
     {
-        $html = $html !== null ? $html : config('assets.html', true);
+        $config = $cupoftea_asset_manager_func_config;
+        $html = $html !== null ? $html : $config('assets.html', true);
         $asset = get_asset($asset, 'css');
         
         if (! $asset || starts_with($asset, '<!--')) {
@@ -108,7 +118,8 @@ if (!function_exists('css')) {
 if (!function_exists('js')) {
     function js($asset, $html = null)
     {
-        $html = $html !== null ? $html : config('assets.html', true);
+        $config = $cupoftea_asset_manager_func_config;
+        $html = $html !== null ? $html : $config('assets.html', true);
         $asset = get_asset($asset, 'js');
         
         if (! $asset || starts_with($asset, '<!--')) {
@@ -126,6 +137,8 @@ if (!function_exists('js')) {
 if (!function_exists('cdn')) {
     function cdn($cdn, $fallback)
     {
+        $value = $cupoftea_asset_manager_func_value;
+        
         if (preg_match('/^\/\//')) {
             $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
             $headers = get_headers($protocol . ':' . $cdn);
@@ -145,6 +158,6 @@ if (!function_exists('cdn')) {
             return $cdn;
         }
         
-        return value($fallback);
+        return $value($fallback);
     }
 }
