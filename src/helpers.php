@@ -17,7 +17,7 @@ $cupoftea_asset_manager_func_config = function($key, $default = null)
     $key = str_replace('assets.', '', $key);
     
     return isset($cfg_file[$key]) ? $cfg_file[$key] : $default;
-}
+};
 
 /**
  * Return the default value of the given value.
@@ -32,7 +32,7 @@ $cupoftea_asset_manager_func_value = function($value)
     }
     
     return $value instanceof Closure ? $value() : $value;
-}
+};
 
 /**
  * Asset Manager functions.
