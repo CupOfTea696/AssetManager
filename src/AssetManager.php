@@ -17,7 +17,7 @@ class AssetManager implements ProviderContract
      * @const string VERSION
      */
     const PACKAGE = 'CupOfTea/AssetManager';
-    const VERSION = '1.2.4-patch';
+    const VERSION = '1.3.0';
     
     protected $cfg;
     
