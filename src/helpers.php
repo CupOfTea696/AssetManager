@@ -1,163 +1,96 @@
 <?php
 
 /**
- * Fallback Laravel helper functions.
+ * Fallback for non-laravel applications.
  */
-$cupoftea_asset_manager_func_config = function($key, $default = null)
-{
-    if (function_exists('config')) {
-        return call_user_func_array('config', [$key, $default]);
+function cupoftea_asset_manager_load(){
+    static $loaded = false;
+    
+    if ($loaded) {
+        return;
     }
     
-    static $cfg_file = null;
-    if ($cfg_file === null) {
-        $cfg_file = include '../config/assets.php';
+    if (\Illuminate\Support\Facades\Facade::getFacadeApplication() === null) {
+        $cupoftea_asset_manager_application = new \Illuminate\Container\Container;
+        \Illuminate\Support\Facades\Facade::setFacadeApplication($cupoftea_asset_manager_application);
     }
     
-    $key = str_replace('assets.', '', $key);
-    
-    return isset($cfg_file[$key]) ? $cfg_file[$key] : $default;
-};
-
-/**
- * Return the default value of the given value.
- *
- * @param  mixed  $value
- * @return mixed
- */
-$cupoftea_asset_manager_func_value = function($value)
-{
-    if (function_exists('value')) {
-        return call_user_func_array('value', [$value]);
+    if (! \Illuminate\Support\Facades\Facade::getFacadeApplication()->bound('CupOfTea\AssetManager\Contracts\Provider')) {
+        \Illuminate\Support\Facades\Facade::getFacadeApplication()->bindShared('CupOfTea\AssetManager\Contracts\Provider', function($app) {
+            return new \CupOfTea\AssetManager\AssetManager();
+        });
     }
     
-    return $value instanceof Closure ? $value() : $value;
-};
-
-/**
- * Asset Manager functions.
- */
-
-if (!function_exists('asset_files')) {
-    function asset_files($asset, $type = false)
-    {
-        $config = $cupoftea_asset_manager_func_config;
-        
-        $asset_path = trim($config('assets.path', 'assets'), '/');
-        $asset = $type ? $config('assets.' . $type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
-        $asset = $asset_path . '/' . $asset;
-        
-        return [
-            'full' => $asset,
-            'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset),
-        ];
+    if (!class_exists('Asset')) {
+        class_alias('\\CupOfTea\\AssetManager\\Facades\\Asset', 'Asset');
     }
+    
+    $loaded = true;
 }
+
+/**
+ * Asset Manager helpers.
+ */
 
 if (!function_exists('asset_exists')) {
     function asset_exists($asset, $type = false)
     {
-        $asset_files = asset_files($asset, $type);
-        $production = function_exists('app') ? app()->environment('production') : true;
+        cupoftea_asset_manager_load();
         
-        if (function_exists('public_path') && file_exists(public_path($asset_files[$production ? 'min' : 'full']))) {
-            return $asset_files[$production ? 'min' : 'full'] . '?v=' . md5_file(public_path($asset_files[$production ? 'min' : 'full']));
-        }
-        
-        if (file_exists($asset_files[$production ? 'full' : 'min'])) {
-            return $asset_files[$production ? 'full' : 'min'] . '?v=' . md5_file($asset_files[$production ? 'full' : 'min']);
-        }
-        
-        return false;
+        return Asset::exists($asset, $type);
     }
 }
 
 if (!function_exists('get_asset')) {
     function get_asset($asset, $type = false)
     {
-        $config = $cupoftea_asset_manager_func_config;
-        $asset_files = asset_files($asset, $type);
-        $asset = asset_exists($asset, $type);
+        cupoftea_asset_manager_load();
         
-        if (!$asset) {
-            $msg = 'Asset ' . $asset_files['full'] . ' and ' . $asset_files['min'] . ' could not be found.';
-            
-            if ($config('assets.missing') == 'warn') {
-                trigger_error($msg, E_USER_WARNING);
-                return false;
-            } elseif ($config('assets.missing', 'comment') == 'comment') {
-                return '<!-- ' . $msg . ' -->';
-            } else {
-                return false;
-            }
-        }
-        
-        return $config('assets.relative', true) ? $asset : asset($asset);
+        return Asset::get($asset, $type);
     }
 }
 
 if (!function_exists('css')) {
     function css($asset, $html = null)
     {
-        $config = $cupoftea_asset_manager_func_config;
-        $html = $html !== null ? $html : $config('assets.html', true);
-        $asset = get_asset($asset, 'css');
+        cupoftea_asset_manager_load();
         
-        if (! $asset || starts_with($asset, '<!--')) {
-            return $asset;
-        }
-        
-        if ($html) {
-            return '<link rel="stylesheet" href="' . $asset . '">';
-        }
-        
-        return $asset;
+        return Asset::css($asset, $html);
     }
 }
 
 if (!function_exists('js')) {
     function js($asset, $html = null)
     {
-        $config = $cupoftea_asset_manager_func_config;
-        $html = $html !== null ? $html : $config('assets.html', true);
-        $asset = get_asset($asset, 'js');
+        cupoftea_asset_manager_load();
         
-        if (! $asset || starts_with($asset, '<!--')) {
-            return $asset;
-        }
-        
-        if ($html) {
-            return '<script src="' . $asset . '"></script>';
-        }
-        
-        return $asset;
+        return Asset::js($asset, $html);
     }
 }
 
 if (!function_exists('cdn')) {
     function cdn($cdn, $fallback)
     {
-        $value = $cupoftea_asset_manager_func_value;
+        cupoftea_asset_manager_load();
         
-        if (preg_match('/^\/\//')) {
-            $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
-            $headers = get_headers($protocol . ':' . $cdn);
-        } else {
-            $headers = get_headers($cdn);
-        }
+        return Asset::cdn($cdn, $fallback);
+    }
+}
+
+if (!function_exists('cdn_css')) {
+    function cdn_css($cdn, $fallback, $html = null)
+    {
+        cupoftea_asset_manager_load();
         
-        $cdn_available = false;
-        foreach ($headers as $header) {
-            if (str_contains($header, '200 OK')) {
-                $cdn_available = true;
-                break;
-            }
-        }
+        return Asset::cdn_css($cdn, $fallback, $html);
+    }
+}
+
+if (!function_exists('cdn_js')) {
+    function cdn_js($cdn, $fallback, $html = null)
+    {
+        cupoftea_asset_manager_load();
         
-        if ($cdn_available){
-            return $cdn;
-        }
-        
-        return $value($fallback);
+        return Asset::cdn_js($cdn, $fallback, $html);
     }
 }

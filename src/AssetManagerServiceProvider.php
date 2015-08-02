@@ -32,7 +32,7 @@ class AssetManagerServiceProvider extends ServiceProvider
 	public function register()
 	{
         $this->app->bindShared('CupOfTea\AssetManager\Contracts\Provider', function($app) {
-            return new AssetManager();
+            return new AssetManager(config('assets'));
 		});
 	}
     
