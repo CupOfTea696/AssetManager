@@ -1,17 +1,15 @@
 <?php namespace CupOfTea\AssetManager;
 
 use Closure;
-
 use CupOfTea\Package\Package;
 use CupOfTea\AssetManager\Contracts\Provider as ProviderContract;
 
 class AssetManager implements ProviderContract
 {
-    
     use Package;
     
     /**
-     * Package Info
+     * Package Info.
      *
      * @const string PACKAGE
      * @const string VERSION
@@ -73,8 +71,8 @@ class AssetManager implements ProviderContract
     }
     
     /**
-	 * {@inheritdoc}
-	 */
+     * {@inheritdoc}
+     */
     public function exists($asset, $type = false)
     {
         $asset_files = $this->files($asset, $type);
@@ -92,19 +90,20 @@ class AssetManager implements ProviderContract
     }
     
     /**
-	 * {@inheritdoc}
-	 */
+     * {@inheritdoc}
+     */
     public function get($asset, $type = false)
     {
         $asset_files = $this->files($asset, $type);
         $asset = $this->exists($asset, $type);
-        $root_url = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/';
+        $root_url = (! empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/';
         
-        if (!$asset) {
+        if (! $asset) {
             $msg = 'Asset ' . $asset_files['full'] . ' and ' . $asset_files['min'] . ' could not be found.';
             
             if ($this->config('missing') == 'warn') {
                 trigger_error($msg, E_USER_WARNING);
+
                 return false;
             } elseif ($this->config('missing', 'comment') == 'comment') {
                 return '<!-- ' . $msg . ' -->';
@@ -117,8 +116,8 @@ class AssetManager implements ProviderContract
     }
     
     /**
-	 * {@inheritdoc}
-	 */
+     * {@inheritdoc}
+     */
     public function css($asset, $html = null)
     {
         $html = $html !== null ? $html : $this->config('html', true);
@@ -136,8 +135,8 @@ class AssetManager implements ProviderContract
     }
     
     /**
-	 * {@inheritdoc}
-	 */
+     * {@inheritdoc}
+     */
     public function js($asset, $html = null)
     {
         $html = $html !== null ? $html : $this->config('html', true);
@@ -155,12 +154,12 @@ class AssetManager implements ProviderContract
     }
     
     /**
-	 * {@inheritdoc}
-	 */
+     * {@inheritdoc}
+     */
     public function cdn($cdn, $fallback)
     {
         if (preg_match('/^\/\//')) {
-            $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
+            $protocol = ((! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
             $headers = get_headers($protocol . ':' . $cdn);
         } else {
             $headers = get_headers($cdn);
@@ -174,7 +173,7 @@ class AssetManager implements ProviderContract
             }
         }
         
-        if ($cdn_available){
+        if ($cdn_available) {
             return $cdn;
         }
         
@@ -210,5 +209,4 @@ class AssetManager implements ProviderContract
         
         return $asset;
     }
-    
 }
