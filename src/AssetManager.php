@@ -32,7 +32,9 @@ class AssetManager implements ProviderContract
     {
         if (is_array($key)) {
             foreach ($this->cfg as $cfg_key => $value) {
-                $this->cfg[$cfg_key] = $key[$cfg_key];
+                if (isset($key[$cfg_key])) {
+                    $this->cfg[$cfg_key] = $key[$cfg_key];
+                }
             }
         } elseif (isset($this->cfg[$key])) {
             $this->cfg[$key] = $value;
