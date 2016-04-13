@@ -17,7 +17,7 @@ function cupoftea_asset_manager_load()
     }
     
     if (! \Illuminate\Support\Facades\Facade::getFacadeApplication()->bound('CupOfTea\AssetManager\Contracts\Provider')) {
-        \Illuminate\Support\Facades\Facade::getFacadeApplication()->bindShared('CupOfTea\AssetManager\Contracts\Provider', function ($app) {
+        \Illuminate\Support\Facades\Facade::getFacadeApplication()->singleton('CupOfTea\AssetManager\Contracts\Provider', function ($app) {
             return new \CupOfTea\AssetManager\AssetManager();
         });
     }
