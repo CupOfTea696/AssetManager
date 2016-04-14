@@ -54,7 +54,7 @@ class AssetManager implements ProviderContract
     protected function public_path($path = '')
     {
         if (function_exists('public_path')) {
-            public_path($path);
+            return public_path($path);
         }
         
         return DIRECTORY_SEPARATOR . trim($this->config('public_path')) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
@@ -105,7 +105,7 @@ class AssetManager implements ProviderContract
             
             if ($this->config('missing') == 'warn') {
                 trigger_error($msg, E_USER_WARNING);
-
+                
                 return false;
             } elseif ($this->config('missing', 'comment') == 'comment') {
                 return '<!-- ' . $msg . ' -->';
