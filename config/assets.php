@@ -7,7 +7,6 @@
  *
  */
 return [
-    
     /*
      *--------------------------------------------------------------------------
      * Public Path
@@ -90,5 +89,4 @@ return [
      *    - 'none' The function just returns false
      */
     'missing' => 'comment',
-    
 ];

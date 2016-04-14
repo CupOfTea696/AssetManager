@@ -24,7 +24,7 @@ class AssetManager implements ProviderContract
         if ($config) {
             $this->cfg = $config;
         } else {
-            $this->cfg = include __DIR__ . '/../config/assets.php';
+            $this->cfg = include __DIR__ . '/../config/defaults.php';
         }
     }
     
