@@ -24,21 +24,21 @@ class AssetManager implements ProviderContract
     
     /**
      * Asset Manager configuration.
-     * 
+     *
      * @var string
      */
     protected $cfg;
     
     /**
      * Loaded manifest files.
-     * 
+     *
      * @var array
      */
     protected $manifests = [];
     
     /**
      * Create a new AssetManager instance.
-     * 
+     *
      * @param  array  $config
      * @return void
      */
@@ -53,7 +53,7 @@ class AssetManager implements ProviderContract
     
     /**
      * Set a configuration key.
-     * 
+     *
      * @param  string  $key
      * @param  mixed  $value
      * @return void
@@ -239,7 +239,7 @@ class AssetManager implements ProviderContract
     
     /**
      * Get the configured revision manifest.
-     * 
+     *
      * @return array|bool
      */
     protected function getManifest()
@@ -261,7 +261,7 @@ class AssetManager implements ProviderContract
     
     /**
      * Get possible file names for an asset.
-     * 
+     *
      * @param  string  $asset
      * @param  string|false  $type
      * @return array
@@ -294,7 +294,7 @@ class AssetManager implements ProviderContract
     
     /**
      * Get a config value.
-     * 
+     *
      * @param  string  $key
      * @param  mixed  $default
      * @return mixed

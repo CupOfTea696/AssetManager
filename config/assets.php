@@ -13,7 +13,7 @@ return [
      *--------------------------------------------------------------------------
      *
      * Path to the public folder.
-     * 
+     *
      * You do not need to configure this setting if you use Laravel.
      *
      * @default dirname(__DIR__) . '/public'
@@ -26,7 +26,7 @@ return [
      *--------------------------------------------------------------------------
      *
      * Path to a revision manifest file.
-     * 
+     *
      * If the assets is found in the manifest, the Asset Manager will attempt
      * to use the versioned file rather than a hash query string for
      * cache busting. If the versioned asset can't be found, the
