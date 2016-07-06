@@ -1,6 +1,7 @@
 <?php namespace CupOfTea\AssetManager\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use CupOfTea\AssetManager\Contracts\Provider;
 
 class Asset extends Facade
 {
@@ -11,6 +12,6 @@ class Asset extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'CupOfTea\AssetManager\Contracts\Provider';
+        return Provider::class;
     }
 }

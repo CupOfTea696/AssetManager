@@ -13,11 +13,28 @@ return [
      *--------------------------------------------------------------------------
      *
      * Path to the public folder.
+     * 
      * You do not need to configure this setting if you use Laravel.
      *
-     * @default dirname(dirname(__FILE__)) . '/public'
+     * @default dirname(__DIR__) . '/public'
      */
-    'public_path' => dirname(dirname(__FILE__)) . '/public',
+    'public_path' => dirname(__DIR__) . '/public',
+    
+    /*
+     *--------------------------------------------------------------------------
+     * Revision Manifest Path
+     *--------------------------------------------------------------------------
+     *
+     * Path to a revision manifest file.
+     * 
+     * If the assets is found in the manifest, the Asset Manager will attempt
+     * to use the versioned file rather than a hash query string for
+     * cache busting. If the versioned asset can't be found, the
+     * Asset Manager will fall back to using a query string.
+     *
+     * @default null
+     */
+    'manifest' => null,
     
     /*
      *--------------------------------------------------------------------------
@@ -58,7 +75,6 @@ return [
      *--------------------------------------------------------------------------
      *
      * Wether or not the asset function should return the relative or full URL.
-     * Useful when using the <base> tag in your <head>
      *
      * @default true
      */

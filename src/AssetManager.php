@@ -9,16 +9,39 @@ class AssetManager implements ProviderContract
     use Package;
     
     /**
-     * Package Info.
+     * Package Name.
      *
-     * @const string PACKAGE
-     * @const string VERSION
+     * @const string
      */
     const PACKAGE = 'CupOfTea/AssetManager';
+    
+    /**
+     * Package Version.
+     *
+     * @const string
+     */
     const VERSION = '1.4.0';
     
+    /**
+     * Asset Manager configuration.
+     * 
+     * @var string
+     */
     protected $cfg;
     
+    /**
+     * Loaded manifest files.
+     * 
+     * @var array
+     */
+    protected $manifests = [];
+    
+    /**
+     * Create a new AssetManager instance.
+     * 
+     * @param  array  $config
+     * @return void
+     */
     public function __construct($config = null)
     {
         if ($config) {
@@ -28,6 +51,13 @@ class AssetManager implements ProviderContract
         }
     }
     
+    /**
+     * Set a configuration key.
+     * 
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return void
+     */
     public function configure($key, $value = null)
     {
         if (is_array($key)) {
@@ -41,37 +71,6 @@ class AssetManager implements ProviderContract
         }
     }
     
-    protected function config($key, $default = null)
-    {
-        return isset($this->cfg[$key]) ? $this->cfg[$key] : $default;
-    }
-    
-    protected function value($value)
-    {
-        return $value instanceof Closure ? $value() : $value;
-    }
-    
-    protected function public_path($path = '')
-    {
-        if (function_exists('public_path')) {
-            return public_path($path);
-        }
-        
-        return DIRECTORY_SEPARATOR . trim($this->config('public_path')) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
-    }
-    
-    protected function files($asset, $type = false)
-    {
-        $asset_path = trim($this->config('path', 'assets'), '/');
-        $asset = $type ? $this->config($type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
-        $asset = '/' . $asset_path . '/' . $asset;
-        
-        return [
-            'full' => $asset,
-            'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset),
-        ];
-    }
-    
     /**
      * {@inheritdoc}
      */
@@ -79,6 +78,14 @@ class AssetManager implements ProviderContract
     {
         $asset_files = $this->files($asset, $type);
         $production = function_exists('app') ? app()->environment('production') : true;
+        
+        if (file_exists($this->public_path($asset_files[$production ? 'min_busted' : 'full_busted']))) {
+            return $asset_files[$production ? 'min_busted' : 'full_busted'];
+        }
+        
+        if (file_exists($this->public_path($asset_files[$production ? 'full_busted' : 'min_busted']))) {
+            return $asset_files[$production ? 'full_busted' : 'min_busted'];
+        }
         
         if (file_exists($this->public_path($asset_files[$production ? 'min' : 'full']))) {
             return $asset_files[$production ? 'min' : 'full'] . '?v=' . md5_file($this->public_path($asset_files[$production ? 'min' : 'full']));
@@ -182,8 +189,17 @@ class AssetManager implements ProviderContract
         return $this->value($fallback);
     }
     
+    /**
+     * Get a CSS Asset from a CDN.
+     *
+     * @param  string  $cdn
+     * @param  string|Closure  $fallback
+     * @param  bool|null  $html
+     * @return mixed
+     */
     public function cdn_css($cdn, $fallback, $html = null)
     {
+        $html = $html !== null ? $html : $this->config('html', true);
         $asset = $this->cdn($cdn, $fallback);
         
         if (! $asset || starts_with($asset, '<!--')) {
@@ -197,8 +213,17 @@ class AssetManager implements ProviderContract
         return $asset;
     }
     
+    /**
+     * Get a JS Asset from a CDN.
+     *
+     * @param  string  $cdn
+     * @param  string|Closure  $fallback
+     * @param  bool|null  $html
+     * @return mixed
+     */
     public function cdn_js($cdn, $fallback, $html = null)
     {
+        $html = $html !== null ? $html : $this->config('html', true);
         $asset = $this->cdn($cdn, $fallback);
         
         if (! $asset || starts_with($asset, '<!--')) {
@@ -210,5 +235,97 @@ class AssetManager implements ProviderContract
         }
         
         return $asset;
+    }
+    
+    /**
+     * Get the configured revision manifest.
+     * 
+     * @return array|bool
+     */
+    protected function getManifest()
+    {
+        $manifestFile = $this->config('manifest');
+        
+        if (! empty($this->manifest[$manifestFile])) {
+            return $this->manifest[$manifestFile];
+        }
+        
+        $realFile = $this->public_path($manifestFile);
+        
+        if ($manifestFile && file_exists($realFile)) {
+            return $this->manifest[$manifestFile] = json_decode(file_get_contents($manifestFile), true);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get possible file names for an asset.
+     * 
+     * @param  string  $asset
+     * @param  string|false  $type
+     * @return array
+     */
+    protected function files($asset, $type = false)
+    {
+        $asset_path = trim($this->config('path', 'assets'), '/');
+        $asset = $type ? $this->config($type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
+        $asset = '/' . $asset_path . '/' . $asset;
+        
+        $files = [
+            'full_busted' => false,
+            'full' => $asset,
+            'min_busted' => false,
+            'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset),
+        ];
+        
+        if ($manifest = $this->getManifest()) {
+            if (! empty($manifest[trim($files['full'], '/')])) {
+                $files['full_busted'] = '/' . trim($manifest[trim($files['full'], '/')], '/');
+            }
+            
+            if (! empty($manifest[trim($files['min'], '/')])) {
+                $files['min_busted'] = '/' . trim($manifest[trim($files['min'], '/')], '/');
+            }
+        }
+        
+        return $files;
+    }
+    
+    /**
+     * Get a config value.
+     * 
+     * @param  string  $key
+     * @param  mixed  $default
+     * @return mixed
+     */
+    protected function config($key, $default = null)
+    {
+        return isset($this->cfg[$key]) ? $this->cfg[$key] : $default;
+    }
+    
+    /**
+     * Return the default value of the given value.
+     * @param  mixed  $value
+     * @return mixed
+     */
+    protected function value($value)
+    {
+        return $value instanceof Closure ? $value() : $value;
+    }
+    
+    /**
+     * Get the path to the public folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    protected function public_path($path = '')
+    {
+        if (function_exists('public_path')) {
+            return public_path($path);
+        }
+        
+        return DIRECTORY_SEPARATOR . trim($this->config('public_path')) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }

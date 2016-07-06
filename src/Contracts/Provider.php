@@ -13,8 +13,8 @@ interface Provider
     /**
      * Get an Asset if it exists.
      *
-     * @param string $asset
-     * @param string $type Optional.
+     * @param  string  $asset
+     * @param  string|false  $type
      * @return string|bool
      */
     public function get($asset, $type = false);
@@ -22,24 +22,26 @@ interface Provider
     /**
      * Get a CSS Asset if it exists.
      *
-     * @param string $asset
+     * @param  string  $asset
+     * @param  bool|null  $html
      * @return string|bool
      */
-    public function css($asset);
+    public function css($asset, $html = null);
     
     /**
      * Get a JS Asset if it exists.
      *
-     * @param string $asset
+     * @param  string  $asset
+     * @param  bool|null  $html
      * @return string|bool
      */
-    public function js($asset);
+    public function js($asset, $html = null);
     
     /**
      * Return a CDN asset with local fallback.
      *
-     * @param string $cdn
-     * @param string|Closure $fallback
+     * @param  string  $cdn
+     * @param  string|Closure  $fallback
      * @return mixed
      */
     public function cdn($cdn, $fallback);

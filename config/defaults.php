@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'public_path' => dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/public',
+    'public_path' => dirname(dirname(dirname(dirname(__DIR__)))) . '/public',
     'path' => 'assets',
     'css' => 'css',
     'js' => 'js',
