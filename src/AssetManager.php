@@ -273,9 +273,9 @@ class AssetManager implements ProviderContract
         $asset = '/' . $asset_path . '/' . $asset;
         
         $files = [
-            'full_busted' => false,
+            'full_busted' => '__NO_HARD_CACHE_BUST__',
             'full' => $asset,
-            'min_busted' => false,
+            'min_busted' => '__NO_HARD_CACHE_BUST__',
             'min' => preg_replace('/(.*)(\..+)/', '$1.min$2', $asset),
         ];
         
