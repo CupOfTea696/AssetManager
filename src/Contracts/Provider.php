@@ -20,13 +20,24 @@ interface Provider
     public function get($asset, $type = false);
     
     /**
+     * Get Assets matching regex if they exist.
+     *
+     * @param  string  $regex
+     * @param  string  $dir
+     * @param  string|false  $type
+     * @return array|bool
+     */
+    public function getRegex($regex, $dir, $type = false);
+    
+    /**
      * Get a CSS Asset if it exists.
      *
      * @param  string  $asset
+     * @param  bool  $split
      * @param  bool|null  $html
-     * @return string|bool
+     * @return string|array|bool
      */
-    public function css($asset, $html = null);
+    public function css($asset, $split = false, $html = null);
     
     /**
      * Get a JS Asset if it exists.

@@ -51,12 +51,21 @@ if (! function_exists('get_asset')) {
     }
 }
 
-if (! function_exists('css')) {
-    function css($asset, $html = null)
+if (! function_exists('get_asset_regex')) {
+    function get_asset_regex($regex, $dir, $type = false)
     {
         cupoftea_asset_manager_load();
         
-        return Asset::css($asset, $html);
+        return Asset::get($regex, $dir, $type);
+    }
+}
+
+if (! function_exists('css')) {
+    function css($asset, $split = false, $html = null)
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::css($asset, $split, $html);
     }
 }
 
