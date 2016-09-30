@@ -6,6 +6,7 @@ return [
     'manifest' => null,
     'css' => 'css',
     'css_partial_regex' => '.*',
+    'css_partial_order' => 'DESC'
     'js' => 'js',
     'relative' => true,
     'html' => true,

@@ -111,11 +111,13 @@ class AssetManager implements ProviderContract
                 trigger_error($msg, E_USER_WARNING);
                 
                 return false;
-            } elseif ($this->config('missing', 'comment') == 'comment') {
+            } 
+            
+            if ($this->config('missing', 'comment') == 'comment') {
                 return '<!-- ' . $msg . ' -->';
-            } else {
-                return false;
             }
+            
+            return false;
         }
         
         return $this->config('relative', true) ? $asset : (function_exists('url') ? url($asset) : $root_url . $asset);
@@ -134,11 +136,13 @@ class AssetManager implements ProviderContract
                 trigger_error($msg, E_USER_WARNING);
                 
                 return false;
-            } elseif ($this->config('missing', 'comment') == 'comment') {
-                return ['<!-- ' . $msg . ' -->'];
-            } else {
-                return [];
             }
+            
+            if ($this->config('missing', 'comment') == 'comment') {
+                return ['<!-- ' . $msg . ' -->'];
+            }
+            
+            return [];
         }
         
         $src = function ($asset) {
@@ -170,26 +174,55 @@ class AssetManager implements ProviderContract
         $html = $html !== null ? $html : $this->config('html', true);
         
         if ($split) {
-            $regex = '/' . preg_quote($asset) . $this->config('css_partial_regex', '.*') . '/';
+            $regex = '/' . preg_quote($asset) . '(' . $this->config('css_partial_regex', '.*') . ')' . '/';
             $dir = 'css' . (($dirname = dirname($asset)) == '.' ? '' : '/' . $dirname);
             
             try {
-                $assets = array_map(function ($asset) use ($html) {
+                $assets = array_map(function ($asset) use ($html, $regex) {
                     if (! $asset || $this->startsWith($asset, '<!--')) {
                         return $asset;
                     }
                     
                     $asset = '/' . $asset;
                     
+                    preg_match($regex, $asset, $matches);
+                    
+                    $asset = [
+                        'asset' => $asset,
+                        'orderby' => $matches[1],
+                    ];
+                    
                     if ($html) {
-                        return '<link rel="stylesheet" href="' . $asset . '">';
+                        $asset['asset'] = '<link rel="stylesheet" href="' . $asset['asset'] . '">';
                     }
                     
                     return $asset;
                 }, $this->getRegex($regex, $dir, 'css'));
             } catch (InvalidArgumentException $e) {
-                return [$e->getMessage()];
+                if ($this->config('missing') == 'warn') {
+                    trigger_error($e->getMessage(), E_USER_WARNING);
+                    
+                    return false;
+                }
+                
+                if ($this->config('missing', 'comment') == 'comment') {
+                    return ['<!-- ' . $e->getMessage() . ' -->'];
+                }
+                
+                return [];
             };
+            
+            usort($assets, function($a, $b) {
+                if (strtolower($this->config('css_partial_order', 'desc')) == 'desc') {
+                    return strcmp($b['orderby'], $a['orderby']);
+                }
+                
+                return strcmp($a['orderby'], $b['orderby']);
+            });
+            
+            $assets = array_map(function ($asset) {
+                return $asset['asset'];
+            }, $assets);
             
             return $assets;
         }
