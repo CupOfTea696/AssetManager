@@ -173,19 +173,23 @@ class AssetManager implements ProviderContract
             $regex = '/' . preg_quote($asset) . $this->config('css_partial_regex', '.*') . '/';
             $dir = 'css' . (($dirname = dirname($asset)) == '.' ? '' : '/' . $dirname);
             
-            $assets = array_map(function ($asset) use ($html) {
-                if (! $asset || $this->startsWith($asset, '<!--')) {
+            try {
+                $assets = array_map(function ($asset) use ($html) {
+                    if (! $asset || $this->startsWith($asset, '<!--')) {
+                        return $asset;
+                    }
+                    
+                    $asset = '/' . $asset;
+                    
+                    if ($html) {
+                        return '<link rel="stylesheet" href="' . $asset . '">';
+                    }
+                    
                     return $asset;
-                }
-                
-                $asset = '/' . $asset;
-                
-                if ($html) {
-                    return '<link rel="stylesheet" href="' . $asset . '">';
-                }
-                
-                return $asset;
-            }, $this->getRegex($regex, $dir, 'css'));
+                }, $this->getRegex($regex, $dir, 'css'));
+            } catch (InvalidArgumentException $e) {
+                return [$e->getMessage()];
+            };
             
             return $assets;
         }
