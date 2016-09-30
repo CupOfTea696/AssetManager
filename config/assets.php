@@ -64,7 +64,7 @@ return [
      *--------------------------------------------------------------------------
      *
      * Regular Expression for a Partial CSS file.
-     * 
+     *
      * If your first partial has no suffix, this group MUST be optional (zero
      * length matches). This group will be appended to the
      * Asset name, before the file type.

@@ -111,7 +111,7 @@ class AssetManager implements ProviderContract
                 trigger_error($msg, E_USER_WARNING);
                 
                 return false;
-            } 
+            }
             
             if ($this->config('missing', 'comment') == 'comment') {
                 return '<!-- ' . $msg . ' -->';
@@ -210,9 +210,9 @@ class AssetManager implements ProviderContract
                 }
                 
                 return [];
-            };
+            }
             
-            usort($assets, function($a, $b) {
+            usort($assets, function ($a, $b) {
                 if (strtolower($this->config('css_partial_order', 'desc')) == 'desc') {
                     return strcmp($b['orderby'], $a['orderby']);
                 }
