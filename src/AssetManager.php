@@ -180,7 +180,10 @@ class AssetManager implements ProviderContract
             try {
                 $assets = array_map(function ($asset) use ($html, $regex) {
                     if (! $asset || $this->startsWith($asset, '<!--')) {
-                        return $asset;
+                        return [
+                            'asset' => $asset,
+                            'order' => null,
+                        ];
                     }
                     
                     $asset = '/' . $asset;
