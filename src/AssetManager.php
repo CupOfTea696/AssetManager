@@ -21,7 +21,7 @@ class AssetManager implements ProviderContract
      *
      * @const string
      */
-    const VERSION = '1.6.1';
+    const VERSION = '1.6.2';
     
     /**
      * Asset Manager configuration.
