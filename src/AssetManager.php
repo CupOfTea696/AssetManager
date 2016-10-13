@@ -368,8 +368,8 @@ class AssetManager implements ProviderContract
      */
     protected function files($asset, $type = false)
     {
-        $asset_path = trim($this->config('path', 'assets'), '/');
-        $asset = $type ? $this->config($type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
+        $asset_path = trim($this->startsWith($asset, '/') ? '' : $this->config('path', 'assets'), '/');
+        $asset = $type ? $this->config($type, $type) . '/' . trim($asset, '/') . '.' . $type : trim($asset, '/');
         $asset = '/' . $asset_path . '/' . $asset;
         
         $files = [
@@ -394,7 +394,7 @@ class AssetManager implements ProviderContract
     
     protected function regexFiles($regex, $dir, $type = false)
     {
-        $asset_path = trim($this->config('path', 'assets'), '/');
+        $asset_path = trim($this->startsWith($dir, '/') ? '' : $this->config('path', 'assets'), '/');
         $manifest = $this->getManifest();
         $dir = $asset_path . '/' . trim($dir, '/');
         $file_groups = [];
