@@ -396,7 +396,7 @@ class AssetManager implements ProviderContract
     {
         $asset_path = trim($this->config('path', 'assets'), '/');
         $manifest = $this->getManifest();
-        $dir = $asset_path . '/' . $dir;
+        $dir = $asset_path . '/' . trim($dir, '/');
         $file_groups = [];
         
         if (! file_exists($dir)) {
