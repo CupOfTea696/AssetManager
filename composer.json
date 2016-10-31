@@ -3,8 +3,8 @@
     "description": "Asset Manager for Laravel 5",
     "require": {
         "cupoftea/package": "~1.1",
-        "illuminate/support": "5.1.*|5.2.*",
-        "illuminate/container": "5.1.*|5.2.*"
+        "illuminate/support": "5.1.*|5.2.*|5.3.*",
+        "illuminate/container": "5.1.*|5.2.*|5.3.*"
     },
     "license": "MIT",
     "authors": [
