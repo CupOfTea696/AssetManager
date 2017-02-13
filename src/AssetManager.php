@@ -64,7 +64,7 @@ class AssetManager implements ProviderContract
     {
         $asset_path = trim($this->config('path', 'assets'), '/');
         $asset = $type ? $this->config($type, $type) . '/' . trim($asset, '/') . '.' . $type : $asset;
-        $asset = $asset_path . '/' . $asset;
+        $asset = ($asset_path ? '/' . $asset_path : '') . '/' . $asset;
         
         return [
             'full' => $asset,
