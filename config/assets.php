@@ -1,27 +1,26 @@
 <?php
 
-/**
+/*
  *--------------------------------------------------------------------------
  * Asset Manager Settings
  *--------------------------------------------------------------------------
  *
  */
-
 return [
-    
-    /**
+    /*
      *--------------------------------------------------------------------------
      * Public Path
      *--------------------------------------------------------------------------
      *
      * Path to the public folder.
+     *
      * You do not need to configure this setting if you use Laravel.
      *
-     * @default dirname(dirname(__FILE__)) . '/public'
+     * @default dirname(__DIR__) . '/public'
      */
-    'public_path' => dirname(dirname(__FILE__)) . '/public',
+    'public_path' => dirname(__DIR__) . '/public',
     
-    /**
+    /*
      *--------------------------------------------------------------------------
      * Path
      *--------------------------------------------------------------------------
@@ -32,7 +31,23 @@ return [
      */
     'path' => 'assets',
     
-    /**
+    /*
+     *--------------------------------------------------------------------------
+     * Revision Manifest Path
+     *--------------------------------------------------------------------------
+     *
+     * Path to a revision manifest file.
+     *
+     * If the assets is found in the manifest, the Asset Manager will attempt
+     * to use the versioned file rather than a hash query string for
+     * cache busting. If the versioned asset can't be found, the
+     * Asset Manager will fall back to using a query string.
+     *
+     * @default null
+     */
+    'manifest' => null,
+    
+    /*
      *--------------------------------------------------------------------------
      * CSS Path
      *--------------------------------------------------------------------------
@@ -43,7 +58,33 @@ return [
      */
     'css' => 'css',
     
-    /**
+    /*
+     *--------------------------------------------------------------------------
+     * CSS Partial Regex
+     *--------------------------------------------------------------------------
+     *
+     * Regular Expression for a Partial CSS file.
+     *
+     * If your first partial has no suffix, this group MUST be optional (zero
+     * length matches). This group will be appended to the
+     * Asset name, before the file type.
+     *
+     * @default '.*'
+     */
+    'css_partial_regex' => '.*',
+    
+    /*
+     *--------------------------------------------------------------------------
+     * CSS Partial Sort Order
+     *--------------------------------------------------------------------------
+     *
+     * Sort order for css partials. This setting is case insensitive.
+     *
+     * @default 'DESC'
+     */
+    'css_partial_order' => 'DESC',
+    
+    /*
      *--------------------------------------------------------------------------
      * JS Path
      *--------------------------------------------------------------------------
@@ -54,19 +95,18 @@ return [
      */
     'js' => 'js',
     
-    /**
+    /*
      *--------------------------------------------------------------------------
      * Relative Path
      *--------------------------------------------------------------------------
      *
      * Wether or not the asset function should return the relative or full URL.
-     * Useful when using the <base> tag in your <head>
      *
      * @default true
      */
     'relative' => true,
     
-    /**
+    /*
      *--------------------------------------------------------------------------
      * Return HTML
      *--------------------------------------------------------------------------
@@ -77,7 +117,7 @@ return [
      */
     'html' => true,
     
-    /**
+    /*
      *--------------------------------------------------------------------------
      * Missing Asset Action
      *--------------------------------------------------------------------------
@@ -91,5 +131,4 @@ return [
      *    - 'none' The function just returns false
      */
     'missing' => 'comment',
-    
 ];
