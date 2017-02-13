@@ -1,8 +1,8 @@
 <?php namespace CupOfTea\AssetManager;
 
 use Closure;
-use InvalidArgumentException;
 use CupOfTea\Package\Package;
+use InvalidArgumentException;
 use CupOfTea\AssetManager\Contracts\Provider as ProviderContract;
 
 class AssetManager implements ProviderContract
