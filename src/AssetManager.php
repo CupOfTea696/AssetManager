@@ -353,7 +353,7 @@ class AssetManager implements ProviderContract
         $realFile = $this->public_path($manifestFile);
         
         if ($manifestFile && file_exists($realFile)) {
-            return $this->manifest[$manifestFile] = json_decode(file_get_contents($manifestFile), true);
+            return $this->manifest[$manifestFile] = json_decode(file_get_contents($realFile), true);
         }
         
         return false;
@@ -504,6 +504,8 @@ class AssetManager implements ProviderContract
      */
     protected function public_path($path = '')
     {
+        $path = trim($path, '/');
+        
         if (function_exists('public_path')) {
             return public_path($path);
         }
