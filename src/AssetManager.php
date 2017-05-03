@@ -380,12 +380,24 @@ class AssetManager implements ProviderContract
         ];
         
         if ($manifest = $this->getManifest()) {
-            if (! empty($manifest[trim($files['full'], '/')])) {
-                $files['full_busted'] = '/' . trim($manifest[trim($files['full'], '/')], '/');
+            $trimPath = trim($this->config('manifest_trim_path'), '/');
+            
+            $assetFull = trim($files['full'], '/');
+            $assetFullNoPath = trim(str_replace($trimPath, '', $assetFull), '/');
+            
+            if (! empty($manifest[$assetFullNoPath])) {
+                $files['full_busted'] = ($trimPath ? '/' . $trimPath : '') . '/' . trim($manifest[$assetFullNoPath], '/');
+            } elseif (! empty($manifest[$assetFull])) {
+                $files['full_busted'] = '/' . trim($manifest[$assetFull], '/');
             }
             
-            if (! empty($manifest[trim($files['min'], '/')])) {
-                $files['min_busted'] = '/' . trim($manifest[trim($files['min'], '/')], '/');
+            $assetMin = trim($files['min'], '/');
+            $assetMinNoPath = trim(str_replace($trimPath, '', $assetMin), '/');
+            
+            if (! empty($manifest[$assetMinNoPath])) {
+                $files['min_busted'] = ($trimPath ? '/' . $trimPath : '') . '/' . trim($manifest[$assetMinNoPath], '/');
+            } elseif (! empty($manifest[$assetMin])) {
+                $files['min_busted'] = '/' . trim($manifest[$assetMin], '/');
             }
         }
         

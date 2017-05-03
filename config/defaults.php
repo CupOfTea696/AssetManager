@@ -4,6 +4,7 @@ return [
     'public_path' => dirname(dirname(dirname(dirname(__DIR__)))) . '/public',
     'path' => 'assets',
     'manifest' => null,
+    'manifest_trim_path' => null,
     'css' => 'css',
     'css_partial_regex' => '.*',
     'css_partial_order' => 'DESC',
