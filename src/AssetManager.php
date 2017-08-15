@@ -408,6 +408,7 @@ class AssetManager implements ProviderContract
     {
         $asset_path = trim($this->startsWith($dir, '/') ? '' : $this->config('path', 'assets'), '/');
         $manifest = $this->getManifest();
+        $trimPath = trim($this->config('manifest_trim_path'), '/');
         $dir = $asset_path . '/' . trim($dir, '/');
         $file_groups = [];
         
@@ -423,13 +424,15 @@ class AssetManager implements ProviderContract
             $regex = substr_replace($regex, '(?:\\.min)?\\.' . $type, strlen($regex) - 1, 0);
         }
         
-        foreach (preg_grep($regex, array_keys($manifest)) as $key) {
-            $asset = $manifest[$key];
-            
-            if (preg_match('/\\.min\\./', $asset)) {
-                $file_groups[str_replace('.min', '', $key)]['min_busted'] = $asset;
-            } else {
-                $file_groups[$key]['full_busted'] = $asset;
+        if ($manifest) {
+            foreach (preg_grep($regex, array_keys($manifest)) as $key) {
+                $asset = $trimPath . '/' . $manifest[$key];
+
+                if (preg_match('/\\.min\\./', $asset)) {
+                    $file_groups[str_replace('.min', '', $key)]['min_busted'] = $asset;
+                } else {
+                    $file_groups[$key]['full_busted'] = $asset;
+                }
             }
         }
         
