@@ -186,7 +186,7 @@ class AssetManager implements ProviderContract
                         ];
                     }
                     
-                    $asset = '/' . $asset;
+                    $asset = '/' . ltrim($asset, '/');
                     
                     preg_match($regex, $asset, $matches);
                     
