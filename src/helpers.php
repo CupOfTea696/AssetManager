@@ -33,12 +33,39 @@ function cupoftea_asset_manager_load()
  * Asset Manager helpers.
  */
 
+if (! function_exists('asset')) {
+    function asset()
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::getFacadeRoot();
+    }
+}
+
+if (! function_exists('asset_from')) {
+    function asset_from($group)
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::from($group);
+    }
+}
+
 if (! function_exists('asset_exists')) {
     function asset_exists($asset, $type = false)
     {
         cupoftea_asset_manager_load();
         
         return Asset::exists($asset, $type);
+    }
+}
+
+if (! function_exists('asset_exists_in')) {
+    function asset_exists_in($group, $asset, $type = false)
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::from($group)->exists($asset, $type);
     }
 }
 
@@ -51,12 +78,30 @@ if (! function_exists('get_asset')) {
     }
 }
 
+if (! function_exists('get_asset_from')) {
+    function get_asset_from($group, $asset, $type = false)
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::from($group)->get($asset, $type);
+    }
+}
+
 if (! function_exists('get_asset_regex')) {
     function get_asset_regex($regex, $dir, $type = false)
     {
         cupoftea_asset_manager_load();
         
         return Asset::get($regex, $dir, $type);
+    }
+}
+
+if (! function_exists('get_asset_from_regex')) {
+    function get_asset_from_regex($group, $regex, $dir, $type = false)
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::from($group)->get($regex, $dir, $type);
     }
 }
 
@@ -69,12 +114,30 @@ if (! function_exists('css')) {
     }
 }
 
+if (! function_exists('css_from')) {
+    function css_from($group, $asset, $split = false, $html = null)
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::from($group)->css($asset, $split, $html);
+    }
+}
+
 if (! function_exists('js')) {
     function js($asset, $html = null)
     {
         cupoftea_asset_manager_load();
         
         return Asset::js($asset, $html);
+    }
+}
+
+if (! function_exists('js_from')) {
+    function js_from($group, $asset, $html = null)
+    {
+        cupoftea_asset_manager_load();
+        
+        return Asset::from($group)->js($asset, $html);
     }
 }
 

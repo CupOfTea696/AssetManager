@@ -25,11 +25,31 @@ return [
      * Path
      *--------------------------------------------------------------------------
      *
-     * Assets path within the public folder.
+     * Asset path within the public folder.
      *
-     * @default 'assets'
+     * @default null
+     * @deprecated 1.9.0
      */
-    'path' => 'assets',
+    'path' => null,
+    
+    /*
+     *--------------------------------------------------------------------------
+     * Paths
+     *--------------------------------------------------------------------------
+     *
+     * Asset paths within the public folder.
+     *
+     * @default ['default' => 'default', 'groups' => ['default' => 'assets']]
+     */
+    'paths' => [
+        // The default group to get assets from
+        'default' => 'default',
+        
+        // The paths for each group, in the format 'group' => 'path'
+        'groups' => [
+            'default' => 'assets',
+        ],
+    ],
     
     /*
      *--------------------------------------------------------------------------

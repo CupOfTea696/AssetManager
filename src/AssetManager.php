@@ -1,6 +1,8 @@
 <?php namespace CupOfTea\AssetManager;
 
 use Closure;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use CupOfTea\Package\Package;
 use InvalidArgumentException;
 use CupOfTea\AssetManager\Contracts\Provider as ProviderContract;
@@ -38,6 +40,13 @@ class AssetManager implements ProviderContract
     protected $manifests = [];
     
     /**
+     * Asset Group to get assets from.
+     *
+     * @var string
+     */
+    protected $assetGroup = 'default';
+    
+    /**
      * Create a new AssetManager instance.
      *
      * @param  array  $config
@@ -46,6 +55,16 @@ class AssetManager implements ProviderContract
     public function __construct(array $config = [])
     {
         $this->cfg = array_merge(include __DIR__ . '/../config/defaults.php', $config);
+        
+        // @TODO: Remove this in next major release
+        if (isset($config['path']) && empty($config['paths'])) {
+            $config['paths'] = [
+                'default' => 'default',
+                'groups' => [
+                    'default' => $config['path'],
+                ],
+            ];
+        }
     }
     
     /**
@@ -58,14 +77,45 @@ class AssetManager implements ProviderContract
     public function configure($key, $value = null)
     {
         if (is_array($key)) {
-            foreach ($this->cfg as $cfg_key => $value) {
-                if (isset($key[$cfg_key])) {
-                    $this->cfg[$cfg_key] = $key[$cfg_key];
+            foreach (Arr::dot($this->cfg) as $cfg_key => $currentValue) {
+                if ($value = Arr::get($key, $cfg_key)) {
+                    $this->configure($cfg_key, $value);
                 }
             }
-        } elseif (isset($this->cfg[$key])) {
-            $this->cfg[$key] = $value;
+        } elseif (Arr::has($this->cfg, $key)) {
+            Arr::set($this->cfg, $key, $value);
+            
+            // @TODO: Remove this in next major release
+            if ($key == 'path') {
+                Arr::set($this->cfg, 'paths.groups.' . $this->config('paths.default'), $value);
+            }
         }
+    }
+    
+    /**
+     * Get a config value.
+     *
+     * @param  string  $key
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function config($key, $default = null)
+    {
+        return Arr::get($this->cfg, $key, $default);
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function from($group = null)
+    {
+        if (! $group) {
+            $group = $this->config('paths.default', 'default');
+        }
+        
+        $this->assetGroup = $group;
+        
+        return $this;
     }
     
     /**
@@ -103,6 +153,9 @@ class AssetManager implements ProviderContract
         $asset_files = $this->files($asset, $type);
         $asset = $this->exists($asset, $type);
         $root_url = (! empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/';
+        
+        // Reset assetGroup to default.
+        $this->from();
         
         if (! $asset) {
             $msg = 'Asset ' . $asset_files['full'] . ' and ' . $asset_files['min'] . ' could not be found.';
@@ -179,7 +232,7 @@ class AssetManager implements ProviderContract
             
             try {
                 $assets = array_map(function ($asset) use ($html, $regex) {
-                    if (! $asset || $this->startsWith($asset, '<!--')) {
+                    if (! $asset || Str::startsWith($asset, '<!--')) {
                         return [
                             'asset' => $asset,
                             'order' => null,
@@ -232,7 +285,7 @@ class AssetManager implements ProviderContract
         
         $asset = $this->get($asset, 'css');
         
-        if (! $asset || $this->startsWith($asset, '<!--')) {
+        if (! $asset || Str::startsWith($asset, '<!--')) {
             return $asset;
         }
         
@@ -251,7 +304,7 @@ class AssetManager implements ProviderContract
         $html = $html !== null ? $html : $this->config('html', true);
         $asset = $this->get($asset, 'js');
         
-        if (! $asset || $this->startsWith($asset, '<!--')) {
+        if (! $asset || Str::startsWith($asset, '<!--')) {
             return $asset;
         }
         
@@ -276,7 +329,7 @@ class AssetManager implements ProviderContract
         
         $cdn_available = false;
         foreach ($headers as $header) {
-            if ($this->strContains($header, '200 OK')) {
+            if (Str::contains($header, '200 OK')) {
                 $cdn_available = true;
                 break;
             }
@@ -286,7 +339,7 @@ class AssetManager implements ProviderContract
             return $cdn;
         }
         
-        return $this->value($fallback);
+        return value($fallback);
     }
     
     /**
@@ -302,7 +355,7 @@ class AssetManager implements ProviderContract
         $html = $html !== null ? $html : $this->config('html', true);
         $asset = $this->cdn($cdn, $fallback);
         
-        if (! $asset || $this->startsWith($asset, '<!--')) {
+        if (! $asset || Str::startsWith($asset, '<!--')) {
             return $asset;
         }
         
@@ -326,7 +379,7 @@ class AssetManager implements ProviderContract
         $html = $html !== null ? $html : $this->config('html', true);
         $asset = $this->cdn($cdn, $fallback);
         
-        if (! $asset || $this->startsWith($asset, '<!--')) {
+        if (! $asset || Str::startsWith($asset, '<!--')) {
             return $asset;
         }
         
@@ -368,7 +421,7 @@ class AssetManager implements ProviderContract
      */
     protected function files($asset, $type = false)
     {
-        $asset_path = trim($this->startsWith($asset, '/') ? '' : $this->config('path', 'assets'), '/');
+        $asset_path = trim(Str::startsWith($asset, '/') ? '' : $this->config('paths.groups.' . $this->assetGroup, 'assets'), '/');
         $asset = $type ? $this->config($type, $type) . '/' . trim($asset, '/') . '.' . $type : trim($asset, '/');
         $asset = ($asset_path ? '/' . $asset_path : '') . '/' . $asset;
         
@@ -406,7 +459,7 @@ class AssetManager implements ProviderContract
     
     protected function regexFiles($regex, $dir, $type = false)
     {
-        $asset_path = trim($this->startsWith($dir, '/') ? '' : $this->config('path', 'assets'), '/');
+        $asset_path = trim(Str::startsWith($dir, '/') ? '' : $this->config('paths.groups.' . $this->assetGroup, 'assets'), '/');
         $manifest = $this->getManifest();
         $trimPath = trim($this->config('manifest_trim_path'), '/');
         $dir = $asset_path . '/' . trim($dir, '/');
@@ -451,64 +504,6 @@ class AssetManager implements ProviderContract
         }
         
         return $file_groups;
-    }
-    
-    /**
-     * Get a config value.
-     *
-     * @param  string  $key
-     * @param  mixed  $default
-     * @return mixed
-     */
-    protected function config($key, $default = null)
-    {
-        return isset($this->cfg[$key]) ? $this->cfg[$key] : $default;
-    }
-    
-    /**
-     * Return the default value of the given value.
-     * @param  mixed  $value
-     * @return mixed
-     */
-    protected function value($value)
-    {
-        return $value instanceof Closure ? $value() : $value;
-    }
-    
-    /**
-     * Determine if a given string contains a given substring.
-     *
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    protected function strContains($haystack, $needles)
-    {
-        foreach ((array) $needles as $needle) {
-            if ($needle != '' && mb_strpos($haystack, $needle) !== false) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Determine if a given string starts with a given substring.
-     *
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    protected function startsWith($haystack, $needles)
-    {
-        foreach ((array) $needles as $needle) {
-            if ($needle != '' && mb_strpos($haystack, $needle) === 0) {
-                return true;
-            }
-        }
-        
-        return false;
     }
     
     /**

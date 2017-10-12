@@ -2,7 +2,7 @@
 
 return [
     'public_path' => dirname(dirname(dirname(dirname(__DIR__)))) . '/public',
-    'path' => 'assets',
+    'paths' => ['default' => 'default', 'groups' => ['default' => 'assets']],
     'manifest' => null,
     'manifest_trim_path' => null,
     'css' => 'css',

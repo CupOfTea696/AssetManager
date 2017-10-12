@@ -3,6 +3,14 @@
 interface Provider
 {
     /**
+     * Select an Asset Group to get assets from.
+     * 
+     * @param  string|null  $group
+     * @return \CupOfTea\AssetManager\AssetManager
+     */
+    public function from($group = null);
+    
+    /**
      * Check if an Asset exists.
      *
      * @param string $asset
