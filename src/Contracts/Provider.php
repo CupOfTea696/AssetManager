@@ -4,7 +4,7 @@ interface Provider
 {
     /**
      * Select an Asset Group to get assets from.
-     * 
+     *
      * @param  string|null  $group
      * @return \CupOfTea\AssetManager\AssetManager
      */
