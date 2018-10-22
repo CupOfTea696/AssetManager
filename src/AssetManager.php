@@ -507,6 +507,6 @@ class AssetManager implements ProviderContract
             return public_path($path);
         }
         
-        return DIRECTORY_SEPARATOR . trim($this->config('public_path')) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return DIRECTORY_SEPARATOR . trim($this->config('public_path'), '/') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
