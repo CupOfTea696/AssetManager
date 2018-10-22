@@ -44,7 +44,7 @@ class AssetManager implements ProviderContract
      *
      * @var string
      */
-    protected $assetGroup = 'default';
+    protected $assetGroup;
     
     /**
      * Create a new AssetManager instance.
@@ -65,6 +65,8 @@ class AssetManager implements ProviderContract
                 ],
             ];
         }
+        
+        $this->assetGroup = $this->config('paths.default');
     }
     
     /**
