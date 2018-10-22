@@ -56,16 +56,6 @@ class AssetManager implements ProviderContract
     {
         $this->cfg = array_merge(include __DIR__ . '/../config/defaults.php', $config);
         
-        // @TODO: Remove this in next major release
-        if (isset($config['path']) && empty($config['paths'])) {
-            $config['paths'] = [
-                'default' => 'default',
-                'groups' => [
-                    'default' => $config['path'],
-                ],
-            ];
-        }
-        
         $this->assetGroup = $this->config('paths.default');
     }
     
@@ -86,11 +76,6 @@ class AssetManager implements ProviderContract
             }
         } elseif (Arr::has($this->cfg, $key)) {
             Arr::set($this->cfg, $key, $value);
-            
-            // @TODO: Remove this in next major release
-            if ($key == 'path') {
-                Arr::set($this->cfg, 'paths.groups.' . $this->config('paths.default'), $value);
-            }
         }
     }
     
